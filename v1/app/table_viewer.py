@@ -363,7 +363,7 @@ class TableViewer(QWidget):
                 subcontrol-position: right;
             }}
             
-            QScrollBar::sub-line:horizontal {|
+            QScrollBar::sub-line:horizontal {{
                 subcontrol-position: left;
             }}
             
