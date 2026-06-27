@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Show All Databases",
+        "sql": "SHOW DATABASES;"
+    },
+    {
+        "name": "Show Tables",
+        "sql": "SHOW TABLES;"
+    },
+    {
+        "name": "Show User Privileges",
+        "sql": "SELECT User, Host FROM mysql.user;"
+    },
+    {
+        "name": "Show Active Connections",
+        "sql": "SHOW PROCESSLIST;"
+    },
+    {
+        "name": "MySQL Version Info",
+        "sql": "SELECT VERSION();"
+    },
+    {
+        "name": "get all users",
+        "sql": "select * from tables;"
+    }
+]

@@ -1,0 +1,8 @@
+{
+    "host": "localhost",
+    "port": 3306,
+    "database": "mysql",
+    "user": "root",
+    "password": "Arduino@1",
+    "theme": "purple-haze"
+}
