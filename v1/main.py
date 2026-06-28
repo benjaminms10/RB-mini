@@ -1,17 +1,29 @@
+#------------------------------------main------------------------------------------------
+
 import sys
+import os
 from PyQt6.QtWidgets import QApplication, QMainWindow, QStackedWidget
 from app.landing_page import LandingPage
 from app.login_page import LoginPage
 from app.signup_page import SignUpPage
 from app.dashboard_page import DashboardPage
+from PyQt6.QtGui import QIcon
 
 class WorkbenchApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("RB MySQL Mini Workbench Suite")
-        self.setMinimumSize(1000, 700)
-        self.init_ui()
+        self.setMinimumSize(1000, 900)
 
+        #icon loading....
+        base_dir=os.path.dirname(os.path.abspath(__file__))
+        icon_path=os.path.join(base_dir,"icons","RB-icon.png")
+        if os.path.exists(icon_path):
+            icon=QIcon(icon_path)
+            self.setWindowIcon(icon)
+            QApplication.setWindowIcon(icon)
+            
+        self.init_ui()
     def init_ui(self):
         # Initialize the stack container
         self.stack = QStackedWidget(self)
@@ -31,7 +43,7 @@ class WorkbenchApp(QMainWindow):
 
         # Start with the Landing Page
         self.show_landing()
-
+        
     def show_landing(self):
         self.stack.setCurrentWidget(self.landing_screen)
         self.setWindowTitle("WELCOME // RB WORKBENCH")

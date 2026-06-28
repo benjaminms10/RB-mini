@@ -1,3 +1,5 @@
+#----------------------------dashbord------------------------------------------------- 
+
 import sys
 import datetime
 import mysql.connector
@@ -71,7 +73,8 @@ class DashboardPage(QWidget):
                 self.update_system_stats()
                 self.refresh_tree()
                 
-                # Pass connection to users tab if initialized
+                # Pass connection to users tab if initialized-hasattr check if the object has specific arribute or method
+                # it is a build in function
                 if hasattr(self, 'users_tab'):
                     self.users_tab.set_connection(self.connection)
         except Error as e:
@@ -238,10 +241,12 @@ class DashboardPage(QWidget):
         top_header_layout.setContentsMargins(0, 0, 0, 5)
         app_title = QLabel("RB MYSQL MINI WORKBENCH", right_panel)
         app_title.setObjectName("AppHeaderTitle")
+        #search input
         search_input = QLineEdit(right_panel)
-        search_input.setPlaceholderText("🔎  Search tables or logs...")
+        search_input.setPlaceholderText("🔎  Search databases...")
         search_input.setObjectName("SearchInput")
         search_input.setFixedWidth(280)
+        
         apply_neo_shadow(search_input, 3, 3)
         top_header_layout.addWidget(app_title)
         top_header_layout.addStretch()
@@ -532,18 +537,19 @@ class DashboardPage(QWidget):
                 self.controller.show_landing()
             return
         
-        if command.lower() in ["clear","cls"]:
+        if command.lower() in ["clear","cls","clear;","cls;"]:
             self.console_output.clear()
-            self.console_output.appendPlainText("mysql> ")
+            self.console_output.appendPlainText("mysql>>> ")
             self.terminal_input.clear()
             self.terminal_input.setFocus()
             log_event("Terminal console output cleared.", "INFO")
             return
         
-        if command.lower() == "help":
-            self.console_output.appendPlainText("Commands: exit, quit, clear, help,\q,cls or any SQL query")
+        if command.lower() in ["help","\h"]:
+            self.console_output.appendPlainText("Commands: exit, quit, clear, help, \h, \q, " \
+            "cls or any SQL query")
             self.console_output.appendPlainText("  Use Enter to execute, Shift+Enter for new line")
-            self.console_output.appendPlainText("mysql> ")
+            self.console_output.appendPlainText("mysql>>>")
             self.terminal_input.clear()
             self.terminal_input.setFocus()
             return
@@ -657,8 +663,13 @@ class DashboardPage(QWidget):
         if item.parent() is not None:
             db_name = item.parent().text(0)
             table_name = item.text(0)
+
+            if not self.connection or not self.connection.is_connected():
+                self.console_output.appendPlainText("ERROR: not connected to MYSQL")
+                self.console_output.appendPlainText("mysql>>>")
+                return
             log_event(f"Visualizing table {db_name}.{table_name} in Table Viewer", "INFO")
-            
+                
             # Show Table Viewer inside DB stack tab
             self.table_viewer.load_table(self.connection, table_name, db_name)
             self.table_viewer.show()
@@ -753,3 +764,7 @@ class DashboardPage(QWidget):
                     self.execute_terminal_command()  # Enter = execute
                     return True
         return super().eventFilter(obj, event)
+    
+    def filter_tree(self,search_text):
+        """its for search button-only databases"""
+        search_text=search_text.upper()

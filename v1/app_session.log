@@ -1,2 +1,72 @@
-[2026-06-27 18:01:35] [SYSTEM] Logs cleared by user.
-[2026-06-27 18:01:50] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 18:12:26] [SYSTEM] Logs cleared by user.
+[2026-06-27 18:12:32] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 18:14:19] [INFO] User 'ben' logged out.
+[2026-06-27 18:14:25] [INFO] User 'ben' logged out.
+[2026-06-27 18:15:21] [INFO] Visualizing table school.student in Table Viewer
+[2026-06-27 18:15:27] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 18:15:55] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 18:15:55] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 18:16:07] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 18:16:37] [INFO] User 'ben' logged out.
+[2026-06-27 18:17:11] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 18:17:53] [INFO] Terminal console output cleared.
+[2026-06-27 18:18:02] [ERROR] Failed to execute SQL: No active connection
+[2026-06-27 18:18:42] [QUERIES] Query updated: 'get all users' -> 'get all users'
+[2026-06-27 18:19:50] [QUERIES] Query added: 'use database'
+[2026-06-27 18:20:17] [QUERIES] Query updated: 'use database' -> 'use database'
+[2026-06-27 18:20:53] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 18:33:32] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 18:33:33] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 18:41:18] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 18:41:18] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 18:51:38] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 18:51:42] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 18:53:51] [INFO] Terminal console output cleared.
+[2026-06-27 18:53:59] [ERROR] SQL Error (499ms): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'batabases' at line 1 on query: show batabases;...
+[2026-06-27 18:54:10] [SQL] SQL Success (1ms): show databases;...
+[2026-06-27 18:54:17] [SQL] SQL Success (0ms): use benjamin;...
+[2026-06-27 18:56:58] [SQL] SQL Success (0ms): use benjamin;...
+[2026-06-27 18:57:04] [ERROR] SQL Error (0ms): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'cls' at line 1 on query: cls;...
+[2026-06-27 18:57:07] [INFO] Terminal console output cleared.
+[2026-06-27 19:00:03] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 19:00:03] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 19:01:12] [ERROR] SQL Error (0ms): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '\c' at line 1 on query: \c...
+[2026-06-27 19:01:15] [INFO] User exited terminal.
+[2026-06-27 19:01:30] [INFO] Terminal console output cleared.
+[2026-06-27 19:01:44] [INFO] User exited terminal.
+[2026-06-27 19:01:54] [INFO] Terminal console output cleared.
+[2026-06-27 20:18:33] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 20:18:36] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 20:26:29] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 20:26:29] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 20:26:55] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 20:26:55] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 21:30:40] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 21:30:43] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 21:41:53] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 21:41:58] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 21:48:22] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 21:48:23] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 21:56:12] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 21:57:15] [SQL] SQL Success (14ms): SHOW DATABASES;...
+[2026-06-27 21:57:24] [SQL] SQL Success (136ms): SHOW PROCESSLIST;...
+[2026-06-27 21:57:50] [ERROR] SQL Error (1424ms): Table 'mysql.table_name' doesn't exist on query: select * from table_name;...
+[2026-06-27 21:57:59] [INFO] User 'ben' logged out.
+[2026-06-27 22:22:00] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 22:22:04] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 22:55:59] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 22:56:02] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 23:01:30] [INFO] Visualizing table benjamin.ben10 in Table Viewer
+[2026-06-27 23:06:27] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 23:06:29] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-27 23:06:45] [INFO] User 'ben' logged out.
+[2026-06-27 23:17:23] [INFO] Attempting connection to root@localhost:3306
+[2026-06-27 23:17:24] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-28 07:55:18] [INFO] Attempting connection to root@localhost:3306
+[2026-06-28 07:55:20] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-28 10:45:18] [INFO] Attempting connection to root@localhost:3306
+[2026-06-28 10:45:22] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-28 10:46:03] [INFO] Attempting connection to root@localhost:3306
+[2026-06-28 10:46:03] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)
+[2026-06-28 11:47:56] [INFO] Attempting connection to root@localhost:3306
+[2026-06-28 11:48:05] [SYSTEM] Successfully connected to MySQL (localhost:3306). Server version: (8, 0, 46)

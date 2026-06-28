@@ -56,7 +56,7 @@ class TableViewer(QWidget):
         
         self.header_layout.addStretch()
         
-        # ⭐ NEW: SAVE Button
+        # SAVE Button
         self.save_btn = QPushButton("💾 SAVE CHANGES", self.header_panel)
         self.save_btn.setObjectName("SaveBtn")
         self.save_btn.setCursor(Qt.CursorShape.PointingHandCursor)

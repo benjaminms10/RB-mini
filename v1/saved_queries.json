@@ -21,6 +21,10 @@
     },
     {
         "name": "get all users",
-        "sql": "select * from tables;"
+        "sql": "select * from table_name;"
+    },
+    {
+        "name": "use database",
+        "sql": "USE DATABASE_NAME;"
     }
 ]
