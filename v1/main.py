@@ -64,5 +64,5 @@ class WorkbenchApp(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = WorkbenchApp()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec())

@@ -1,3 +1,4 @@
+import webbrowser
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 )
@@ -188,6 +189,7 @@ class LandingPage(QWidget):
         self.docs_btn.setFixedSize(142, 40)
         self.docs_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         apply_neo_shadow(self.docs_btn, 3, 3)
+        self.docs_btn.clicked.connect(self.direct_to_readme)
 
         self.support_btn = QPushButton("SUPPORT", background)
         self.support_btn.setObjectName("SupportBtn")
@@ -316,4 +318,6 @@ class LandingPage(QWidget):
                 color: {COLOR_WHITE};
             }}
         """)
-
+    def direct_to_readme(self):
+        readme_url="https://github.com/benjaminms10/RB-mini/blob/main/README.md"
+        webbrowser.open(readme_url)

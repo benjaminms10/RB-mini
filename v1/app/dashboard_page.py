@@ -4,7 +4,8 @@ import sys
 import datetime
 import mysql.connector
 from mysql.connector import Error
-
+import os
+import json
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFrame,
     QTreeWidget, QTreeWidgetItem, QPlainTextEdit, QStackedWidget, QSplitter, QDialog
@@ -23,8 +24,8 @@ from .config_helper import load_connection_details
 from .connection_settings_dialog import ConnectionSettingsDialog
 from .table_viewer import TableViewer
 from .queries_tab import QueriesTab
-from .users_tab import UsersTab
 from .logs_tab import LogsTab, log_event
+from . import user_manager
 
 
 class DashboardPage(QWidget):
@@ -33,6 +34,7 @@ class DashboardPage(QWidget):
         self.controller = controller
         self.connection = None
         self.cursor = None
+        self.logged_in_user = None
         self.init_ui()
         self.connect_to_mysql()
 
@@ -72,11 +74,7 @@ class DashboardPage(QWidget):
                 
                 self.update_system_stats()
                 self.refresh_tree()
-                
-                # Pass connection to users tab if initialized-hasattr check if the object has specific arribute or method
-                # it is a build in function
-                if hasattr(self, 'users_tab'):
-                    self.users_tab.set_connection(self.connection)
+            
         except Error as e:
             self.connection = None
             self.cursor = None
@@ -84,10 +82,6 @@ class DashboardPage(QWidget):
             self.console_output.appendPlainText(f"[!] Click the ⚙️ SETTINGS button to configure your MySQL connection")
             self.console_output.appendPlainText("mysql> ")
             log_event(f"Connection failed to {host}:{port}: {e}", "ERROR")
-            
-            # Pass connection to users tab if initialized
-            if hasattr(self, 'users_tab'):
-                self.users_tab.set_connection(None)
             self.update_system_stats()
 
     def init_ui(self):
@@ -116,6 +110,8 @@ class DashboardPage(QWidget):
         sidebar_layout.addSpacing(15)
 
         self.menu_buttons = []
+        
+        # ✅ Databases Button (Index 0)
         db_btn = QPushButton("🗄️  Databases", sidebar)
         db_btn.setObjectName("SidebarBtnSelected")
         db_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -123,6 +119,7 @@ class DashboardPage(QWidget):
         sidebar_layout.addWidget(db_btn)
         self.menu_buttons.append(db_btn)
 
+        # ✅ Queries Button (Index 1)
         queries_btn = QPushButton("📋  Queries", sidebar)
         queries_btn.setObjectName("SidebarBtn")
         queries_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -130,13 +127,16 @@ class DashboardPage(QWidget):
         sidebar_layout.addWidget(queries_btn)
         self.menu_buttons.append(queries_btn)
 
-        users_btn = QPushButton("👤  Users", sidebar)
-        users_btn.setObjectName("SidebarBtn")
-        users_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        apply_neo_shadow(users_btn, 3, 3)
-        sidebar_layout.addWidget(users_btn)
-        self.menu_buttons.append(users_btn)
+        # ✅ Users Button - Shows all users from JSON
+        self.users_btn = QPushButton("👥  Users", sidebar)
+        self.users_btn.setObjectName("SidebarBtn")
+        self.users_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        apply_neo_shadow(self.users_btn, 3, 3)
+        sidebar_layout.addWidget(self.users_btn)
+        self.menu_buttons.append(self.users_btn)
+        self.users_btn.clicked.connect(self.show_all_users)
 
+        # ✅ Logs Button (Index 2)
         logs_btn = QPushButton("📜  Logs", sidebar)
         logs_btn.setObjectName("SidebarBtn")
         logs_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -147,8 +147,7 @@ class DashboardPage(QWidget):
         # Connect sidebar clicks
         db_btn.clicked.connect(lambda: self.switch_tab(0))
         queries_btn.clicked.connect(lambda: self.switch_tab(1))
-        users_btn.clicked.connect(lambda: self.switch_tab(2))
-        logs_btn.clicked.connect(lambda: self.switch_tab(3))
+        logs_btn.clicked.connect(lambda: self.switch_tab(2))
 
         sidebar_layout.addStretch()
         exec_query_btn = QPushButton("🚪  LOGOUT", sidebar)
@@ -241,13 +240,15 @@ class DashboardPage(QWidget):
         top_header_layout.setContentsMargins(0, 0, 0, 5)
         app_title = QLabel("RB MYSQL MINI WORKBENCH", right_panel)
         app_title.setObjectName("AppHeaderTitle")
-        #search input
+        
+        # Search input
         search_input = QLineEdit(right_panel)
         search_input.setPlaceholderText("🔎  Search databases...")
         search_input.setObjectName("SearchInput")
         search_input.setFixedWidth(280)
-        
         apply_neo_shadow(search_input, 3, 3)
+        search_input.textChanged.connect(self.filter_tree)
+
         top_header_layout.addWidget(app_title)
         top_header_layout.addStretch()
         top_header_layout.addWidget(search_input)
@@ -303,11 +304,12 @@ class DashboardPage(QWidget):
         term_header_layout.addStretch()
         terminal_layout.addWidget(term_header)
 
+        # ✅ OUTPUT AREA - Increased size
         self.console_output = QPlainTextEdit(terminal_container)
         self.console_output.setObjectName("ConsoleOutputText")
         self.console_output.setReadOnly(True)
         self.console_output.setPlainText("[⏳] Connecting to MySQL...\n")
-        self.console_output.setFixedHeight(200)
+        self.console_output.setFixedHeight(400)  # Increased from 200
         terminal_layout.addWidget(self.console_output)
 
         self.terminal_input = QPlainTextEdit(terminal_container)
@@ -321,25 +323,21 @@ class DashboardPage(QWidget):
         
         # Table Viewer
         self.table_viewer = TableViewer(parent=self)
-        self.table_viewer.hide()  # hidden initially
+        self.table_viewer.hide()
         db_splitter.addWidget(self.table_viewer)
         
-        db_splitter.setSizes([350, 250])
+        db_splitter.setSizes([500, 150])  # More terminal space
         db_tab_layout.addWidget(db_splitter)
         
-        self.stacked_widget.addWidget(db_tab_widget)
+        self.stacked_widget.addWidget(db_tab_widget)  # Index 0
         
         # --- TAB 1: SAVED QUERIES ---
         self.queries_tab = QueriesTab(run_query_callback=self.run_query_from_tab, parent=self)
-        self.stacked_widget.addWidget(self.queries_tab)
-        
-        # --- TAB 2: USERS ---
-        self.users_tab = UsersTab(connection=self.connection, parent=self)
-        self.stacked_widget.addWidget(self.users_tab)
-        
-        # --- TAB 3: LOGS ---
+        self.stacked_widget.addWidget(self.queries_tab)  # Index 1
+
+        # --- TAB 2: LOGS ---
         self.logs_tab = LogsTab(parent=self)
-        self.stacked_widget.addWidget(self.logs_tab)
+        self.stacked_widget.addWidget(self.logs_tab)  # Index 2
         
         right_layout.addWidget(self.stacked_widget)
         main_layout.addWidget(right_panel)
@@ -530,26 +528,25 @@ class DashboardPage(QWidget):
         self.console_output.appendPlainText(f"mysql> {command}")
 
         # Special commands
-        if command.lower() in ["exit", "quit","\q"]:
+        if command.lower() in ["exit", "quit", r"\q"]:
             self.console_output.appendPlainText("Bye!")
             log_event("User exited terminal.", "INFO")
             if self.controller:
                 self.controller.show_landing()
             return
         
-        if command.lower() in ["clear","cls","clear;","cls;"]:
+        if command.lower() in ["clear", "cls", "clear;", "cls;"]:
             self.console_output.clear()
-            self.console_output.appendPlainText("mysql>>> ")
+            self.console_output.appendPlainText("mysql> ")
             self.terminal_input.clear()
             self.terminal_input.setFocus()
             log_event("Terminal console output cleared.", "INFO")
             return
         
-        if command.lower() in ["help","\h"]:
-            self.console_output.appendPlainText("Commands: exit, quit, clear, help, \h, \q, " \
-            "cls or any SQL query")
+        if command.lower() in ["help", r"\h"]:
+            self.console_output.appendPlainText(r"Commands: exit, quit, clear, help, \h, \q, cls or any SQL query")
             self.console_output.appendPlainText("  Use Enter to execute, Shift+Enter for new line")
-            self.console_output.appendPlainText("mysql>>>")
+            self.console_output.appendPlainText("mysql> ")
             self.terminal_input.clear()
             self.terminal_input.setFocus()
             return
@@ -629,23 +626,21 @@ class DashboardPage(QWidget):
         """Switches stacked widget tab and updates button visuals."""
         self.stacked_widget.setCurrentIndex(index)
         
-        # Update button styles to indicate selection
+        # Update button styles
         for i, btn in enumerate(self.menu_buttons):
             if i == index:
                 btn.setObjectName("SidebarBtnSelected")
             else:
                 btn.setObjectName("SidebarBtn")
-            # Force stylesheet refresh
             btn.style().unpolish(btn)
             btn.style().polish(btn)
-            
+        
         # Refresh contents of dynamic tabs when switched to
-        if index == 1: # Saved Queries
+        if index == 1:  # Saved Queries
             self.queries_tab.refresh_queries()
-        elif index == 2: # Users
-            self.users_tab.refresh_users()
-        elif index == 3: # Logs
-            self.logs_tab.reload_logs()
+        elif index == 2:  # Logs
+            if hasattr(self, 'logs_tab'):
+                self.logs_tab.reload_logs()
 
     def open_connection_settings(self):
         """Displays connection configuration settings dialog."""
@@ -659,27 +654,33 @@ class DashboardPage(QWidget):
 
     def on_tree_item_double_clicked(self, item, column):
         """Visualizes database tables on tree double click."""
-        # A table node will have a parent database node
         if item.parent() is not None:
             db_name = item.parent().text(0)
             table_name = item.text(0)
 
             if not self.connection or not self.connection.is_connected():
                 self.console_output.appendPlainText("ERROR: not connected to MYSQL")
-                self.console_output.appendPlainText("mysql>>>")
+                self.console_output.appendPlainText("mysql> ")
                 return
+            
             log_event(f"Visualizing table {db_name}.{table_name} in Table Viewer", "INFO")
-                
-            # Show Table Viewer inside DB stack tab
             self.table_viewer.load_table(self.connection, table_name, db_name)
             self.table_viewer.show()
             self.switch_tab(0)
 
     def set_logged_in_user(self, username):
-        """Sets the currently logged-in username and updates the sidebar label."""
+        """Sets the currently logged-in username and updates the sidebar."""
         self.logged_in_user = username
+        
+        # ✅ Update Users button text
+        if hasattr(self, 'users_btn') and self.users_btn:
+            self.users_btn.setText(f"👥  {username}")
+        
+        # ✅ Update admin label
         if hasattr(self, 'admin_lbl') and self.admin_lbl:
-            self.admin_lbl.setText(f"User: {username}")
+            self.admin_lbl.setText("RB Admin")
+        
+        # ✅ Update profile picture
         if hasattr(self, 'profile_lbl') and self.profile_lbl:
             initial = username[0].upper() if username else "U"
             self.profile_lbl.setText(initial)
@@ -725,7 +726,7 @@ class DashboardPage(QWidget):
                 db_item.setFont(0, QFont("Arial Black", 10, QFont.Weight.Bold))
                 
                 try:
-                    cursor.execute(f"SHOW TABLES FROM {db_name}")
+                    cursor.execute(f"SHOW TABLES FROM `{db_name}`")
                     tables = cursor.fetchall()
                     for table in tables:
                         table_item = QTreeWidgetItem(db_item)
@@ -765,6 +766,73 @@ class DashboardPage(QWidget):
                     return True
         return super().eventFilter(obj, event)
     
-    def filter_tree(self,search_text):
-        """its for search button-only databases"""
-        search_text=search_text.upper()
+    def filter_tree(self, search_text):
+        """Filter the tree widget based on search text"""
+        search_text = search_text.upper().strip()
+
+        # If search is empty, show all items
+        if not search_text:
+            for i in range(self.tree_widget.topLevelItemCount()):
+                db_item = self.tree_widget.topLevelItem(i)
+                db_item.setHidden(False)
+                for j in range(db_item.childCount()):
+                    db_item.child(j).setHidden(False)
+            return
+
+        # Filter items based on search text
+        for i in range(self.tree_widget.topLevelItemCount()):
+            db_item = self.tree_widget.topLevelItem(i)
+            db_name = db_item.text(0).upper()
+            db_matches = search_text in db_name
+            has_matching_child = False
+
+            for j in range(db_item.childCount()):
+                table_item = db_item.child(j)
+                table_name = table_item.text(0).upper()
+
+                if search_text in table_name:
+                    has_matching_child = True
+                    table_item.setHidden(False)
+                else:
+                    table_item.setHidden(True)
+
+            if db_matches or has_matching_child:
+                db_item.setHidden(False)
+                if has_matching_child:
+                    db_item.setExpanded(True)
+            else:
+                db_item.setHidden(True)
+
+    def show_all_users(self):
+        """Display all users from the JSON file in the console"""
+        self.console_output.clear()
+        self.console_output.appendPlainText("=" * 60)
+        self.console_output.appendPlainText("👥 ALL REGISTERED USERS")
+        self.console_output.appendPlainText("=" * 60)
+        
+        # ✅ Use user_manager to load users
+        users = user_manager.load_users()
+        
+        if users:
+            self.console_output.appendPlainText(f"\n📊 Total Users: {len(users)}")
+            self.console_output.appendPlainText("")
+            self.console_output.appendPlainText("-" * 60)
+            
+            for i, user in enumerate(users, 1):
+                self.console_output.appendPlainText(f"  [{i}] 👤 Username:  {user.get('username', 'N/A')}")
+                self.console_output.appendPlainText(f"      📛 Full Name: {user.get('fullname', 'N/A')}")
+                self.console_output.appendPlainText(f"      📧 Email:     {user.get('email', 'N/A')}")
+                self.console_output.appendPlainText(f"      🔒 Password:  ********")
+                
+                if user.get('username') == self.logged_in_user:
+                    self.console_output.appendPlainText(f"      ⭐ LOGGED IN")
+                
+                self.console_output.appendPlainText("-" * 60)
+            
+            self.console_output.appendPlainText(f"\n⭐ Logged in as: {self.logged_in_user}")
+        else:
+            self.console_output.appendPlainText("❌ No users found in JSON database")
+        
+        self.console_output.appendPlainText("")
+        self.console_output.appendPlainText("=" * 60)
+        self.console_output.appendPlainText("mysql> ")
