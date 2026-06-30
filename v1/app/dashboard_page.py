@@ -734,7 +734,7 @@ class DashboardPage(QWidget):
                 except Error:
                     pass
                 
-                db_item.setExpanded(True)
+                db_item.setExpanded(False)
             
             cursor.close()
         except Error:

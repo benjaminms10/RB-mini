@@ -4,5 +4,5 @@
     "database": "mysql",
     "user": "root",
     "password": "Arduino@1",
-    "theme": "purple-haze"
+    "theme": "lightmode"
 }
